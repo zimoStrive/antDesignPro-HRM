@@ -17,11 +17,12 @@ import {
 } from '@ant-design/icons';
 import { ProFormCaptcha, LoginFormPage, ProFormText } from '@ant-design/pro-components';
 import { FormattedMessage, history, SelectLang, useIntl, useModel, Helmet } from '@umijs/max';
-import { Alert, message, Tabs } from 'antd';
+import { Alert, message, Tabs, App } from 'antd';
 import Settings from '../../../../config/defaultSettings';
 import React, { useState } from 'react';
 import { flushSync } from 'react-dom';
 import { createStyles } from 'antd-style';
+import { cacheUtil } from '@/utils/cache';
 
 const useStyles = createStyles(({ token }) => {
   return {
@@ -122,27 +123,31 @@ const Login: React.FC = () => {
       // 登录
       const msg = await userLogin({ ...values, type });
 
-      // if (msg.status === 'ok') {
-      //   const defaultLoginSuccessMessage = intl.formatMessage({
-      //     id: 'pages.login.success',
-      //     defaultMessage: '登录成功！',
-      //   });
-      //   message.success(defaultLoginSuccessMessage);
-      //   await fetchUserInfo();
-      //   const urlParams = new URL(window.location.href).searchParams;
-      //   history.push(urlParams.get('redirect') || '/');
-      //   return;
-      // }
+      if (msg.code === 0) {
+        const defaultLoginSuccessMessage = intl.formatMessage({
+          id: 'pages.login.success',
+          defaultMessage: '登录成功！',
+        });
+
+        // 存储用户信息
+        cacheUtil.setItem('userProfile', msg.data);
+
+        message.success(defaultLoginSuccessMessage);
+        await fetchUserInfo();
+        const urlParams = new URL(window.location.href).searchParams;
+        history.push(urlParams.get('redirect') || '/welcome');
+        return;
+      }
       console.log(msg);
       // 如果失败去设置用户错误信息
       setUserLoginState(msg);
     } catch (error) {
-      // const defaultLoginFailureMessage = intl.formatMessage({
-      //   id: 'pages.login.failure',
-      //   defaultMessage: '登录失败，请重试！',
-      // });
-      // console.log(error);
-      // message.error(defaultLoginFailureMessage);
+      const defaultLoginFailureMessage = intl.formatMessage({
+        id: 'pages.login.failure',
+        defaultMessage: '登录失败，请重试！',
+      });
+      console.log(error);
+      message.error(defaultLoginFailureMessage);
     }
   };
   const { status, type: loginType } = userLoginState;
@@ -361,4 +366,8 @@ const Login: React.FC = () => {
   );
 };
 
-export default Login;
+export default () => (
+  <App>
+    <Login />
+  </App>
+);
