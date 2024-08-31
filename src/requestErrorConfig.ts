@@ -1,6 +1,7 @@
 ﻿import type { RequestOptions } from '@@/plugin-request/request';
-import type { RequestConfig } from '@umijs/max';
+import { history, type RequestConfig } from '@umijs/max';
 import { message, notification } from 'antd';
+import { cacheUtil } from './utils/cache';
 
 // 错误处理方案： 错误类型
 enum ErrorShowType {
@@ -90,6 +91,16 @@ export const errorConfig: RequestConfig = {
     (config: RequestOptions) => {
       // 拦截请求配置，进行个性化处理。
       const url = `/api${config.url}`;
+      const token = cacheUtil.getItem('token');
+
+      if (typeof token === 'string') {
+        // 检查 token 是否为字符串
+        config.headers = {
+          ...config.headers,
+          Authorization: token,
+        };
+        config.mode = 'cors';
+      }
       return { ...config, url };
     },
   ],
@@ -97,6 +108,16 @@ export const errorConfig: RequestConfig = {
   // 响应拦截器
   responseInterceptors: [
     (response) => {
+      if (response.status >= 200 && response.status < 300) {
+        // 保存token
+        const token = response.headers.authorization;
+        token && cacheUtil.setItem('token', token);
+
+        if (response.data.code === 401) {
+          history.replace('/user/login');
+          cacheUtil.clear();
+        }
+      }
       // 拦截响应数据，进行个性化处理
       const { data } = response as unknown as ResponseStructure;
 

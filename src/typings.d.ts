@@ -16,7 +16,8 @@ declare module '@antv/data-set';
 declare module 'mockjs';
 declare module 'react-fittext';
 declare module 'bizcharts-plugin-slider';
-// @ant-design/pro-components
+
 declare module '@ant-design/pro-components';
+declare module '@/services/*';
 
 declare const REACT_APP_ENV: 'test' | 'dev' | 'pre' | false;

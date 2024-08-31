@@ -1,6 +1,5 @@
 import {
   checkedCode,
-  getRouteList,
   getSmCode,
   queryUserLogin,
   resetPassword,
@@ -59,18 +58,6 @@ const useStyles = createStyles(({ token }) => {
     },
   };
 });
-
-const ActionIcons = () => {
-  const { styles } = useStyles();
-
-  return (
-    <>
-      <AlipayCircleOutlined key="AlipayCircleOutlined" className={styles.action} />
-      <TaobaoCircleOutlined key="TaobaoCircleOutlined" className={styles.action} />
-      <WeiboCircleOutlined key="WeiboCircleOutlined" className={styles.action} />
-    </>
-  );
-};
 
 const Lang = () => {
   const { styles } = useStyles();
@@ -173,7 +160,7 @@ const Login: React.FC = () => {
       >
         <LoginFormPage
           containerStyle={{
-            backgroundColor: 'rgba(0, 0, 0,0.65)',
+            backgroundColor: '#fff',
             backdropFilter: 'blur(4px)',
           }}
           backgroundImageUrl="https://mdn.alipayobjects.com/huamei_gcee1x/afts/img/A*y0ZTS6WLwvgAAAAAAAAAAAAADml6AQ/fmt.webp"
