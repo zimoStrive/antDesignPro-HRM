@@ -5,15 +5,7 @@ import {
   resetPassword,
   userLogin,
 } from '@/services/api/user';
-import { getFakeCaptcha } from '@/services/ant-design-pro/login';
-import {
-  AlipayCircleOutlined,
-  LockOutlined,
-  MobileOutlined,
-  TaobaoCircleOutlined,
-  UserOutlined,
-  WeiboCircleOutlined,
-} from '@ant-design/icons';
+import { LockOutlined, MobileOutlined, UserOutlined } from '@ant-design/icons';
 import { ProFormCaptcha, LoginFormPage, ProFormText } from '@ant-design/pro-components';
 import { FormattedMessage, history, SelectLang, useIntl, useModel, Helmet } from '@umijs/max';
 import { Alert, message, Tabs, App } from 'antd';
@@ -86,7 +78,7 @@ const LoginMessage: React.FC<{
 
 const Login: React.FC = () => {
   const [userLoginState, setUserLoginState] = useState<API.LoginResult>({});
-  const [type, setType] = useState<number>(0); //0 密码登录 1 验证码登录
+  const [type, setType] = useState<number>(1); //0 密码登录 1 验证码登录
   const { initialState, setInitialState } = useModel('@@initialState');
   const { styles } = useStyles();
   const intl = useIntl();
@@ -110,7 +102,7 @@ const Login: React.FC = () => {
       // 登录
       const msg = await userLogin({ ...values, type });
 
-      if (msg.code === 0) {
+      if (msg.code === 0 && msg.data) {
         const defaultLoginSuccessMessage = intl.formatMessage({
           id: 'pages.login.success',
           defaultMessage: '登录成功！',
@@ -127,7 +119,8 @@ const Login: React.FC = () => {
       }
       console.log(msg);
       // 如果失败去设置用户错误信息
-      setUserLoginState(msg);
+      message.error(msg.msg);
+      // setUserLoginState();
     } catch (error) {
       const defaultLoginFailureMessage = intl.formatMessage({
         id: 'pages.login.failure',
@@ -142,6 +135,7 @@ const Login: React.FC = () => {
   const loginTypeActiveKey = type === 0 ? 'account' : 'mobile';
   return (
     <div className={styles.container}>
+      {/* seo */}
       <Helmet>
         <title>
           {intl.formatMessage({
@@ -313,10 +307,13 @@ const Login: React.FC = () => {
                     defaultMessage: '获取验证码',
                   });
                 }}
-                name="captcha"
+                name="code"
+                phoneName="mobile"
+                length={6}
                 rules={[
                   {
                     required: true,
+
                     message: (
                       <FormattedMessage
                         id="pages.login.captcha.required"
@@ -324,15 +321,17 @@ const Login: React.FC = () => {
                       />
                     ),
                   },
+                  { max: 6, message: '最大长度为6位' },
+                  { min: 6, message: '最小长度为6位' },
                 ]}
-                onGetCaptcha={async (phone) => {
-                  const result = await getFakeCaptcha({
-                    phone,
+                onGetCaptcha={async (mobile: number) => {
+                  const result = await getSmCode({
+                    mobile,
                   });
-                  if (!result) {
+                  if (!result.data) {
                     return;
                   }
-                  message.success('获取验证码成功！验证码为：1234');
+                  message.success('获取验证码成功！');
                 }}
               />
             </>

@@ -1,4 +1,4 @@
-// import qs from 'qs';
+import qs from 'qs';
 import { request } from 'umi';
 // 封装 HTTP 请求方法
 class Http {
@@ -23,8 +23,8 @@ class Http {
   // GET 请求处理
   get(url: string, options: any = {}) {
     // 使用 qs.stringify 处理查询参数
-    // const queryString = qs.stringify(options);
-    return request(`${url}`, {
+    const queryString = qs.stringify(options);
+    return request(`${url}?${queryString}`, {
       method: 'GET',
       ...options,
     });
